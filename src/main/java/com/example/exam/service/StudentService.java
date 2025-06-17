@@ -1,11 +1,12 @@
 package com.example.exam.service;
 
+import com.example.exam.dto.PageRequestDTO;
 import com.example.exam.entity.Student;
 import com.example.exam.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class StudentService {
@@ -22,8 +23,14 @@ public class StudentService {
         return studentRepository.save(student);
     }
 
-    public List<Student> getAllStudents() {
-        return studentRepository.findAll();
+    public Page<Student> getStudentsPage(PageRequestDTO request) {
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+
+        if(request.getSearch() != null && !request.getSearch().trim().isEmpty()) {
+            return studentRepository.findByKeyword(request.getSearch().trim(), pageRequest);
+        }
+
+        return studentRepository.findAll(pageRequest);
     }
 
     public Student updateStudent(Long id, Student studentDetails) {
@@ -33,10 +40,6 @@ public class StudentService {
         student.setFullname(studentDetails.getFullname());
         student.setEmail(studentDetails.getEmail());
         return studentRepository.save(student);
-    }
-
-    public List<Student> searchStudents(String keyword) {
-        return studentRepository.searchStudents(keyword);
     }
 
     public void deleteStudent(Long id) {
