@@ -1,11 +1,10 @@
 package com.example.exam.service;
 
-import com.example.exam.dto.PageRequestDTO;
 import com.example.exam.entity.Student;
 import com.example.exam.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,14 +22,11 @@ public class StudentService {
         return studentRepository.save(student);
     }
 
-    public Page<Student> getStudentsPage(PageRequestDTO request) {
-        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
-
-        if(request.getSearch() != null && !request.getSearch().trim().isEmpty()) {
-            return studentRepository.findByKeyword(request.getSearch().trim(), pageRequest);
+    public Page<Student> getStudentsPage(Pageable pageable, String search) {
+        if(search != null && !search.trim().isEmpty()) {
+            return studentRepository.findByKeyword(search.trim(), pageable);
         }
-
-        return studentRepository.findAll(pageRequest);
+        return studentRepository.findAll(pageable);
     }
 
     public Student updateStudent(Long id, Student studentDetails) {
